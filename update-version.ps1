@@ -8,8 +8,37 @@ $lastTag = git tag --sort=-creatordate | Select-Object -First 1
 Write-Host "`nLast version $($lastTag)" -ForegroundColor Green -BackgroundColor Black
 
 $versionComponents = $lastTag.Split('.')
-$versionComponents[1] = [int]$versionComponents[1] + 1
+
+
+do {
+    $incrementType = Read-Host "Please select the type of version to increment: Major, Minor, or Patch"
+} while ($incrementType -notin @('Major', 'Minor', 'Patch'))
+
+switch ($incrementType.ToLower()) {
+    'Major' {
+        $versionComponents[0] = [int]$versionComponents[0] + 1
+        $versionComponents[1] = 0
+        $versionComponents[2] = 0
+    }
+    'Minor' {
+        $versionComponents[1] = [int]$versionComponents[1] + 1
+        $versionComponents[2] = 0
+    }
+    'Patch' {
+        $versionComponents[2] = [int]$versionComponents[2] + 1
+    }
+}
+
 $newTag = $versionComponents -join '.'
+
+Write-Host "`nNew version $($newTag)`n" -ForegroundColor Green -BackgroundColor Black
+
+$answer = $(Write-Host "Please enter 'yes' to accept the new version or provide your own version:" -ForegroundColor Green -BackgroundColor Black; Read-Host) 
+
+if($answer -ne "yes" -and $answer -ne "")
+{
+    $newTag = $answer
+}
 
 Write-Host "`nNew version $($newTag)`n" -ForegroundColor Green -BackgroundColor Black
 
